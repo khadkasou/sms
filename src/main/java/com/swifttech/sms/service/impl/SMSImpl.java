@@ -19,13 +19,32 @@ public class SMSImpl implements SMSService {
     private final SMSConnector smsConnector;
 
     @Override
-    public void save(SMSRequest smsRequest) {
+    public Response save(SMSRequest smsRequest) {
+
         SMS sms = SMSMapper.INSTANCE.toEntity(smsRequest);
-        BaseResponse response = smsConnector.sendSMS(smsRequest);
-        sms.setStatus(String.valueOf(response.getResponseCode()));
-        sms.setMessage(smsRequest.getMessage());
-        sms.setResponseMessage(response.getResponseDescription());
-        sms.setReceiverNo(smsRequest.getReceiverNo());
+
+        BaseResponse baseresponse = smsConnector.sendSMS(smsRequest);
+        Response response = new Response();
+        if (baseresponse != null && baseresponse.getResponseCode() != 100) {
+
+            sms.setStatus(String.valueOf(baseresponse.getResponseCode()));
+            sms.setMessage(smsRequest.getMessage());
+            sms.setResponseMessage(baseresponse.getResponseDescription());
+            sms.setReceiverNo(smsRequest.getReceiverNo());
+
+            response.setMessage(baseresponse.getResponseDescription());
+            response.setCode(String.valueOf(baseresponse.getResponseCode()));
+        }
+        else {
+            sms.setStatus("500");
+            sms.setResponseMessage("Failed to send message");
+
+            response.setMessage("Failed to send message");
+            response.setCode("500");
+
+        }
         smsRepository.save(sms);
+        return response;
+
     }
 }
