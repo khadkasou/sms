@@ -4,7 +4,10 @@ import com.swifttech.sms.dto.request.SMSRequest;
 import com.swifttech.sms.mapper.SMSMapper;
 import com.swifttech.sms.model.SMS;
 import com.swifttech.sms.repository.SMSRepository;
+import com.swifttech.sms.response.BaseResponse;
+import com.swifttech.sms.response.Response;
 import com.swifttech.sms.service.SMSService;
+import com.swifttech.sms.utils.SMSConnector;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +16,16 @@ import org.springframework.stereotype.Service;
 public class SMSImpl implements SMSService {
 
     private final SMSRepository smsRepository;
+    private final SMSConnector smsConnector;
 
     @Override
-    public SMS save(SMSRequest smsRequest) {
+    public void save(SMSRequest smsRequest) {
         SMS sms = SMSMapper.INSTANCE.toEntity(smsRequest);
-        return this.smsRepository.save(sms);
+        BaseResponse response = smsConnector.sendSMS(smsRequest);
+        sms.setStatus(String.valueOf(response.getResponseCode()));
+        sms.setMessage(smsRequest.getMessage());
+        sms.setResponseMessage(response.getResponseDescription());
+        sms.setReceiverNo(smsRequest.getReceiverNo());
+        smsRepository.save(sms);
     }
 }

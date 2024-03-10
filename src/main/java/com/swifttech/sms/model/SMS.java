@@ -14,11 +14,10 @@ public class SMS {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String isClientLogin;
     private String receiverNo;
     private String message;
-    private String username;
-    private String password;
-    private String organisationCode;
+    private String status;
+    private String responseMessage;
+
 
 }

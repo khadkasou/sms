@@ -8,11 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SMSResponse {
-    private String isClientLogin;
     private String receiverNo;
     private String message;
-    private String username;
-    private String password;
-    private String organisationCode;
+
 
 }

@@ -5,6 +5,6 @@ import com.swifttech.sms.model.SMS;
 
 public interface SMSService {
 
-    SMS save(SMSRequest smsRequest);
+    void save(SMSRequest smsRequest);
 
 }
