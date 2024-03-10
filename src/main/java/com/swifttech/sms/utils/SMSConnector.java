@@ -6,7 +6,6 @@ import com.swifttech.sms.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -32,10 +31,10 @@ public class SMSConnector {
                 .block();
 
        if (response.getResponseCode() != 100){
-           throw new RuntimeException("messange sent fail.");
+           throw new RuntimeException("SMS sent fail.");
        }
 
-       return Response.builder().success(true).message("Message sent")
+       return Response.builder().success(true).message("SMS sent")
                .build();
 
 

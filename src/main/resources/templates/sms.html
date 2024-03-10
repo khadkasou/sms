@@ -2,12 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>Welcome SMS</title>
+    <title>SMS Confirmation</title>
 </head>
 <body>
+<h1>SMS Confirmation</h1>
 <p>
-    Dear <span th:text="${name}"></span>,
-    You have created an account.
+    Dear <span th:text="${smsRequest}"></span>,
+           You have created an account.
 </p>
 </body>
 </html>
