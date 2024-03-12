@@ -9,42 +9,67 @@ import com.swifttech.sms.response.Response;
 import com.swifttech.sms.service.SMSService;
 import com.swifttech.sms.utils.SMSConnector;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SMSImpl implements SMSService {
 
     private final SMSRepository smsRepository;
     private final SMSConnector smsConnector;
 
+    private static final Integer SUCCESS_STATUS_CODE = 100;
+    private static final Integer FAILURE_STATUS_CODE = 500;
+
     @Override
     public Response save(SMSRequest smsRequest) {
+        try {
+            SMS sms = SMSMapper.INSTANCE.toEntity(smsRequest);
+            BaseResponse baseResponse = smsConnector.sendSMS(smsRequest);
+            Response response = new Response();
 
-        SMS sms = SMSMapper.INSTANCE.toEntity(smsRequest);
+            handleSMSResponse(sms, baseResponse, response);
 
-        BaseResponse baseresponse = smsConnector.sendSMS(smsRequest);
-        Response response = new Response();
-        if (baseresponse != null && baseresponse.getResponseCode() != 100) {
-
-            sms.setStatus(String.valueOf(baseresponse.getResponseCode()));
-            sms.setMessage(smsRequest.getMessage());
-            sms.setResponseMessage(baseresponse.getResponseDescription());
-            sms.setReceiverNo(smsRequest.getReceiverNo());
-
-            response.setMessage(baseresponse.getResponseDescription());
-            response.setCode(String.valueOf(baseresponse.getResponseCode()));
+            smsRepository.save(sms);
+            return response;
+        } catch (Exception e) {
+            log.error("Error saving SMS: {}", e.getMessage(), e);
+            return null;
         }
-        else {
-            sms.setStatus("500");
-            sms.setResponseMessage("Failed to send message");
-
-            response.setMessage("Failed to send message");
-            response.setCode("500");
-
-        }
-        smsRepository.save(sms);
-        return response;
-
     }
+
+
+    private void handleSMSResponse(SMS sms, BaseResponse baseResponse, Response response) {
+        try {
+            if (baseResponse != null && SUCCESS_STATUS_CODE.equals(baseResponse.getResponseCode())) {
+                sms.setStatus(baseResponse.getResponseCode());
+                sms.setMessage(sms.getMessage());
+                sms.setResponseMessage(baseResponse.getResponseDescription());
+                sms.setReceiverNo(sms.getReceiverNo());
+
+                response.setMessage(baseResponse.getResponseDescription());
+                response.setSuccess(true);
+                response.setCode(baseResponse.getResponseCode());
+
+            } else {
+                sms.setStatus(FAILURE_STATUS_CODE);
+                sms.setResponseMessage("Failed to send message");
+
+                response.setMessage(baseResponse.getResponseDescription());
+                response.setCode(baseResponse.getResponseCode());
+            }
+        } catch (Exception e) {
+            log.error("Error handling SMS response: {}", e.getMessage(), e);
+            }
+    }
+
+
 }
+
+
+
+
+
+

@@ -10,6 +10,6 @@ import lombok.*;
 @Data
 public class BaseResponse {
 
-   private int responseCode;
+   private Integer responseCode;
    private String responseDescription;
 }

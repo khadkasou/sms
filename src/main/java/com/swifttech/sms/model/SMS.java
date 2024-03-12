@@ -16,7 +16,7 @@ public class SMS {
     private Long id;
     private String receiverNo;
     private String message;
-    private String status;
+    private Integer status;
     private String responseMessage;
 
 
